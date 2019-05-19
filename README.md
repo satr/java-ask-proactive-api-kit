@@ -1,4 +1,4 @@
-# java-ask-proactive-api-kit
+# Java ASK Proactive API kit
 Alexa Skills Proactive API kit
 This kit has boierplate code to send Proactive Events to Alexa Skills over AWS Lambda function.
 * Inherit your Lambda function from the `SendProactiveEventRequestHandler`

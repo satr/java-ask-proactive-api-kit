@@ -13,7 +13,7 @@ public abstract class AwsSecretAsJsonProvider<T> extends AwsSecretProvider {
 
     @Override
     protected void processSecret(String secretString) {
-        T secret = null;
+        T secret;
         try {
             Class<T> actualTypeArgument = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
             secret = new ObjectMapper().readValue(secretString, actualTypeArgument);

@@ -6,7 +6,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.github.satr.ask.proactive.api.ProactiveEventProvider;
-import com.github.satr.ask.proactive.api.ProactiveEventProviderImpl;
 import com.github.satr.ask.proactive.api.events.ProactiveEvent;
 import com.github.satr.ask.proactive.api.net.AskProactiveEventHttpClient;
 import com.github.satr.aws.auth.ClientIdSecretProvider;

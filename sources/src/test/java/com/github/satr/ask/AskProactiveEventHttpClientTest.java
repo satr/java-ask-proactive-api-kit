@@ -1,5 +1,6 @@
 package com.github.satr.ask;
 
+import com.amazonaws.regions.Regions;
 import com.github.satr.ask.components.ObjectMother;
 import com.github.satr.ask.proactive.api.events.ProactiveEvent;
 import com.github.satr.ask.proactive.api.net.AskProactiveEventHttpClient;
@@ -22,5 +23,6 @@ public class AskProactiveEventHttpClientTest {
 
         assertTrue(result.isSuccess());
     }
+
 }
 

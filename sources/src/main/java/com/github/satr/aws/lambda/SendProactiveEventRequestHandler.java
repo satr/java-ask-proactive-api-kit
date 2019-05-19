@@ -8,6 +8,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.github.satr.ask.proactive.api.ProactiveEventProvider;
 import com.github.satr.ask.proactive.api.events.ProactiveEvent;
 import com.github.satr.ask.proactive.api.net.AskProactiveEventHttpClient;
+import com.github.satr.aws.regions.InvalidRegionNameException;
 import com.github.satr.aws.auth.ClientIdSecretProvider;
 import com.github.satr.aws.auth.ClientIdSecretProviderImpl;
 import com.github.satr.common.OperationResult;
@@ -20,11 +21,11 @@ public abstract class SendProactiveEventRequestHandler implements RequestHandler
     private final ProactiveEventProvider proactiveEventProvider;
     private AskProactiveEventHttpClient httpClientWrapper;
 
-    public SendProactiveEventRequestHandler(String alexaClientIdSecretAwsSecretName, Regions region, ProactiveEventProvider proactiveEventProvider) {
-        this(alexaClientIdSecretAwsSecretName, region.name(), proactiveEventProvider);
+    public SendProactiveEventRequestHandler(String alexaClientIdSecretAwsSecretName, Regions region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
+        this(alexaClientIdSecretAwsSecretName, region.getName(), proactiveEventProvider);
     }
 
-    public SendProactiveEventRequestHandler(String alexaClientIdSecretAwsSecretName, String region, ProactiveEventProvider proactiveEventProvider) {
+    public SendProactiveEventRequestHandler(String alexaClientIdSecretAwsSecretName, String region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
         this(new ApacheHttpClientWrapper(),
                 new ClientIdSecretProviderImpl(alexaClientIdSecretAwsSecretName, region),
                 proactiveEventProvider);

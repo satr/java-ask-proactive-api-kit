@@ -5,6 +5,8 @@ import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.*;
+import com.github.satr.aws.regions.InvalidRegionNameException;
+import com.github.satr.aws.regions.RegionsValidator;
 
 import java.security.InvalidParameterException;
 import java.util.Base64;
@@ -14,9 +16,9 @@ public abstract class AwsSecretProvider {
     private final AWSSecretsManager client;
 
     //This code is based on the example, provided during registering secret in AWS Secrets Manager
-    public AwsSecretProvider(String secretName, String region) {
+    public AwsSecretProvider(String secretName, String region) throws InvalidRegionNameException {
         client  = AWSSecretsManagerClientBuilder.standard()
-                .withRegion(region)
+                .withRegion(RegionsValidator.getValidated(region))
                 .build();
         readSecret(secretName);
 

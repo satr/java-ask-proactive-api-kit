@@ -1,13 +1,14 @@
 package com.github.satr.aws.auth;
 // Copyright © 2019, github.com/satr, MIT License
 
+import com.github.satr.aws.regions.InvalidRegionNameException;
 import com.github.satr.aws.auth.entities.ClientIdSecretPair;
 
 public class ClientIdSecretProviderImpl extends AwsSecretAsJsonProvider<ClientIdSecretPair> implements ClientIdSecretProvider{
     private String clientId;
     private String clientSecret;
 
-    public ClientIdSecretProviderImpl(String secretName, String region) {
+    public ClientIdSecretProviderImpl(String secretName, String region) throws InvalidRegionNameException {
         super(secretName, region);
     }
 

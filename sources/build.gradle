@@ -25,9 +25,3 @@ dependencies {
     compile group: 'com.github.satr', name:'java-common-net', version:'1.2'
 }
 
-//Include dependencies in jar-file - to deploy to AWS Lambda function
-jar {
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}

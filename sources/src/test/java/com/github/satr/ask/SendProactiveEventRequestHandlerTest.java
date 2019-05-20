@@ -1,10 +1,8 @@
 package com.github.satr.ask;
 
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.github.satr.ask.components.ObjectMother;
-import com.github.satr.ask.components.TestProactiveEventProvider;
 import com.github.satr.ask.components.TestSendProactiveEventRequestHandler;
 import com.github.satr.ask.components.TestClientIdSecretProvider;
 import com.github.satr.ask.proactive.api.ProactiveEventProvider;
@@ -17,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,10 +32,10 @@ public class SendProactiveEventRequestHandlerTest {
     ProactiveEventProvider proactiveEventProvider;
 
     private SendProactiveEventRequestHandler requestHandler;
-    private ProactiveEvent proactiveEvent;
+    private List<ProactiveEvent> proactiveEvent;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(context.getLogger()).thenReturn(loggerMock);
         doAnswer(call -> {
             System.out.println((String)call.getArgument(0));
@@ -57,8 +57,8 @@ public class SendProactiveEventRequestHandlerTest {
 
     @Test
     public void handleRequest() {
-        proactiveEvent = ObjectMother.getProactiveEvent(5, 10);
-        when(proactiveEventProvider.getEvent()).thenReturn(proactiveEvent);
+        proactiveEvent = ObjectMother.getProactiveEvents(5, 10);
+        when(proactiveEventProvider.getEvents()).thenReturn(proactiveEvent);
         ApacheHttpClientWrapper httpClient = new ApacheHttpClientWrapper();//.withLoggingToConsole();
         TestClientIdSecretProvider secretProvider = ObjectMother.getTestClientIdSecretProvider();
         requestHandler = new TestSendProactiveEventRequestHandler(httpClient, secretProvider, proactiveEventProvider);
@@ -72,8 +72,8 @@ public class SendProactiveEventRequestHandlerTest {
 
     @Test
     public void handleRepeatedRequest() throws InvalidRegionNameException {
-        proactiveEvent = ObjectMother.getProactiveEvent(5, 10);
-        when(proactiveEventProvider.getEvent()).thenReturn(proactiveEvent);
+        proactiveEvent = ObjectMother.getProactiveEvents(5, 10);
+        when(proactiveEventProvider.getEvents()).thenReturn(proactiveEvent);
         ApacheHttpClientWrapper httpClient = new ApacheHttpClientWrapper();//.withLoggingToConsole();
         TestClientIdSecretProvider secretProvider = ObjectMother.getTestClientIdSecretProvider();
         requestHandler = new TestSendProactiveEventRequestHandler(httpClient, secretProvider, proactiveEventProvider);
@@ -84,8 +84,8 @@ public class SendProactiveEventRequestHandlerTest {
         assertNotNull(respond);
         assertTrue(respond.startsWith("Event has been sent with referenceId"));
 
-        proactiveEvent.setTimestampNew();
-        proactiveEvent.setExpiryTimeNowPlusSeconds(1);
+        proactiveEvent.get(0).setTimestampNew();
+        proactiveEvent.get(0).setExpiryTimeNowPlusSeconds(1);
         respond = requestHandler.handleRequest(null, context);
 
         System.out.println(respond);

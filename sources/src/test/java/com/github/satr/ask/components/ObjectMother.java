@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static org.junit.Assert.fail;
@@ -28,7 +30,7 @@ public final class ObjectMother {
         return clientIdSecretProvider;
     }
 
-    public static ProactiveEvent getProactiveEvent(int startTimeNowPlus10MinutesPlusMinutes, int expiryTimeNowPlus10MinutesPlusMinutes) {
+    public static List<ProactiveEvent> getProactiveEvents(int startTimeNowPlus10MinutesPlusMinutes, int expiryTimeNowPlus10MinutesPlusMinutes) {
         ProactiveEvent proactiveEvent = new ProactiveEvent();
         MediaContentAvailable mediaEvent = new MediaContentAvailable();
         OffsetDateTime nowPlus10minutes = DateTimeUtil.utcNow().plusMinutes(10);
@@ -48,8 +50,9 @@ public final class ObjectMother {
                 .withContentName("Content example"));
         proactiveEvent.addLocalizedAttributes(mediaEvent.getLocalizedAttributes("Send Event Provider Example", "Other locale Content example", Locale.GERMANY, Locale.CANADA));
         proactiveEvent.getRelevantAudience().setType(RelevantAudienceType.Multicast);
-
-        return proactiveEvent;
+        ArrayList<ProactiveEvent> events = new ArrayList<>();
+        events.add(proactiveEvent);
+        return events;
     }
 
 }

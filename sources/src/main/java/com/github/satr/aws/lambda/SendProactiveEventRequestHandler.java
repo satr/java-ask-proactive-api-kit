@@ -16,6 +16,7 @@ import com.github.satr.common.OperationResult;
 import com.github.satr.common.net.ApacheHttpClientWrapper;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /// set environment variables in a Lambda function configuration dashboard (names and values are described in <ref=EnvironmentVariable>). Default: Dev, NorthEast
@@ -41,13 +42,33 @@ public abstract class SendProactiveEventRequestHandler implements RequestHandler
     @Override
     public String handleRequest(Map<String, String> input, Context context) {
         LambdaLogger logger = context.getLogger();
-        logger.log("Send proactive event");
-        ProactiveEvent event = proactiveEventProvider.getEvent();
-        OperationResult result = httpClientWrapper.send(event);
-        logResult(logger, result);
-        return result.isSuccess()
-                ? String.format("Event has been sent with referenceId: %s (timestamp: %s, expired: %s)", event.getReferenceId(), event.getTimestamp(), event.getExpiryTime())
-                : String.format("Event has not been sent. Error: %s", result.getErrorsAsString());
+        List<ProactiveEvent> events = proactiveEventProvider.getEvents();
+        if(events.isEmpty()) {
+            String emptyCollectionMessage = "No events to be sent";
+            logger.log(emptyCollectionMessage);
+            return emptyCollectionMessage;
+        }
+        int MaxEvents = 10;
+        if(events.size() > MaxEvents) {
+            String tooManyEvents = String.format("Maximum %d events can be sent at one time. Sending first %d event.", MaxEvents, MaxEvents);
+            logger.log(tooManyEvents);
+        } else {
+            logger.log(String.format("Send %d proactive event(s).", events.size()));
+        }
+        ArrayList<String> outputMessages = new ArrayList<>();
+        int eventCount = 0;
+        for (ProactiveEvent event: events) {
+            if(eventCount >= MaxEvents)
+                break;
+            OperationResult result = httpClientWrapper.send(event);
+            logResult(logger, result);
+            String outputMessage = result.isSuccess()
+                    ? String.format("Event #%d has been sent with referenceId: %s (timestamp: %s, expired: %s)", eventCount + 1, event.getReferenceId(), event.getTimestamp(), event.getExpiryTime())
+                    : String.format("Event #%d has not been sent. Error: %s", eventCount + 1, result.getErrorsAsString());
+            logger.log(outputMessage);
+            outputMessages.add(outputMessage);
+        }
+        return String.join("\n", outputMessages);
     }
 
     private void logResult(LambdaLogger logger, OperationResult result) {

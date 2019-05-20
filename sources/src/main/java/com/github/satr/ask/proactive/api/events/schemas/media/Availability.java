@@ -3,12 +3,11 @@ package com.github.satr.ask.proactive.api.events.schemas.media;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.satr.ask.proactive.api.events.EventProvider;
+import com.github.satr.common.DateTimeUtil;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.OffsetDateTime;
 
 public class Availability {
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     @JsonProperty("startTime") private String startTime;
     @JsonProperty("provider") private EventProvider provider = EventProvider.fromLocalizedAttribute();
     @JsonProperty("method") private DistributionMethod method;
@@ -17,8 +16,8 @@ public class Availability {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
-        setStartTime(dateTimeFormatter.format(startTime));
+    public void setStartTime(OffsetDateTime startTime) {
+        setStartTime(DateTimeUtil.toIsoString(DateTimeUtil.toUtc(startTime)));
     }
 
     public void setStartTime(String startTime) {
@@ -47,7 +46,7 @@ public class Availability {
         this.method = method;
     }
 
-    public Availability withStartTime(LocalDateTime startTime) {
+    public Availability withStartTime(OffsetDateTime startTime) {
         setStartTime(startTime);
         return this;
     }

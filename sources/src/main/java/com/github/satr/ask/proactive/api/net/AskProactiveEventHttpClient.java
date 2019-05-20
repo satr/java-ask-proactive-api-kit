@@ -92,7 +92,7 @@ public class AskProactiveEventHttpClient {
         httpClientWrapper.executeRequest(new HttpClientAction() {
             @Override
             public HttpUriRequest getHttpRequest() throws IOException {
-                return getActionRequest(proactiveEvent);
+                return getActionRequest(proactiveEvent, result);
             }
             @Override
             public void processRespond(int statusCode, String respondBody) throws IOException {
@@ -101,8 +101,9 @@ public class AskProactiveEventHttpClient {
         });
     }
 
-    private HttpEntity getActionEntity(ProactiveEvent proactiveEvent) throws JsonProcessingException, UnsupportedEncodingException {
+    private HttpEntity getActionEntity(ProactiveEvent proactiveEvent, OperationResult result) throws JsonProcessingException, UnsupportedEncodingException {
         String jsonString = new ObjectMapper().writeValueAsString(proactiveEvent);
+        result.addVerbose("[Request body]: " + jsonString);
         return new StringEntity(jsonString);
     }
 
@@ -123,13 +124,13 @@ public class AskProactiveEventHttpClient {
         return bearerTokenRequest;
     }
 
-    private HttpUriRequest getActionRequest(ProactiveEvent proactiveEvent) throws JsonProcessingException, UnsupportedEncodingException {
+    private HttpUriRequest getActionRequest(ProactiveEvent proactiveEvent, OperationResult result) throws JsonProcessingException, UnsupportedEncodingException {
         if(eventActionRequest != null)
             return eventActionRequest;
         eventActionRequest = new HttpPost(apiEndpoint);
         eventActionRequest.addHeader("Content-Type", "application/json");
         eventActionRequest.addHeader("Authorization", String.format("Bearer %s", accessToken.getAccessToken()));
-        eventActionRequest.setEntity(getActionEntity(proactiveEvent));
+        eventActionRequest.setEntity(getActionEntity(proactiveEvent, result));
         return eventActionRequest;
     }
 

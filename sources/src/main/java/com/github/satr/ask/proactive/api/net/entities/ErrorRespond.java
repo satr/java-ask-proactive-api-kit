@@ -2,18 +2,18 @@ package com.github.satr.ask.proactive.api.net.entities;
 // Copyright © 2019, github.com/satr, MIT License
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.satr.common.DateTimeUtil;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ErrorRespond {
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    private final LocalDateTime createdOn;
+    private final OffsetDateTime createdOn;
     @JsonProperty("error_description") private String errorDescription;
     @JsonProperty("error") private String error;
 
     public ErrorRespond() {
-        createdOn = LocalDateTime.now();
+        createdOn = OffsetDateTime.now();
     }
 
     public String getErrorDescription() {
@@ -32,11 +32,11 @@ public class ErrorRespond {
         this.error = error;
     }
 
-    public LocalDateTime getCreatedOn() {
+    public OffsetDateTime getCreatedOn() {
         return createdOn;
     }
 
     public String createdOnAsString() {
-        return dateTimeFormatter.format(createdOn);
+        return DateTimeUtil.toIsoString(createdOn);
     }
 }

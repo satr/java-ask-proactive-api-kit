@@ -34,6 +34,7 @@ public class CreativeWork {
         return this;
     }
 
+    //should be same as in localized attributes or from there
     public CreativeWork withNameFromLocalizedAttribute() {
         setName("localizedattribute:contentName");
         return this;

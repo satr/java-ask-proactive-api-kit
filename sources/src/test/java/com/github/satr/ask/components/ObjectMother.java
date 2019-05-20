@@ -5,9 +5,12 @@ import com.github.satr.ask.proactive.api.events.RelevantAudienceType;
 import com.github.satr.ask.proactive.api.events.schemas.media.DistributionMethod;
 import com.github.satr.ask.proactive.api.events.schemas.media.MediaContentAvailable;
 import com.github.satr.ask.proactive.api.events.schemas.media.MediaTypes;
+import com.github.satr.common.DateTimeUtil;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Locale;
 
 import static org.junit.Assert.fail;
@@ -25,18 +28,21 @@ public final class ObjectMother {
         return clientIdSecretProvider;
     }
 
-    public static ProactiveEvent getProactiveEvent(int expiryTimeNowPlusSeconds) {
+    public static ProactiveEvent getProactiveEvent(int startTimeNowPlus10MinutesPlusMinutes, int expiryTimeNowPlus10MinutesPlusMinutes) {
         ProactiveEvent proactiveEvent = new ProactiveEvent();
         MediaContentAvailable mediaEvent = new MediaContentAvailable();
+        OffsetDateTime nowPlus10minutes = DateTimeUtil.utcNow().plusMinutes(10);
+        OffsetDateTime startTime = nowPlus10minutes.plusMinutes(startTimeNowPlus10MinutesPlusMinutes);
+        OffsetDateTime expiryTime = nowPlus10minutes.plusMinutes(expiryTimeNowPlus10MinutesPlusMinutes);
         mediaEvent.getAvailability()
-                .withProviderFromLocalizedAttribute()//should be sa as in localised attributes or from there
+                .withProviderFromLocalizedAttribute()//should be same as in localised attributes or from there
                 .withMethod(DistributionMethod.AIR)
-                .withStartTime(LocalDateTime.now().plusHours(1));
+                .withStartTime(startTime);
         mediaEvent.getContent()
-                .withNameFromLocalizedAttribute() //should be sa as in localised attributes or from there
+                .withNameFromLocalizedAttribute() //should be same as in localised attributes or from there
                 .withContentType(MediaTypes.EPISODE);
         proactiveEvent.setEventWithSchema(mediaEvent);
-        proactiveEvent.setExpiryTimeNowPlusSeconds(expiryTimeNowPlusSeconds);
+        proactiveEvent.setExpiryTime(expiryTime);
         proactiveEvent.addLocalizedAttribute(mediaEvent.getLocalizedAttribute(Locale.US)
                 .withProviderName("Send Event Provider Example")
                 .withContentName("Content example"));
@@ -45,4 +51,5 @@ public final class ObjectMother {
 
         return proactiveEvent;
     }
+
 }

@@ -16,13 +16,14 @@ public abstract class AwsSecretAsJsonProvider<T> extends AwsSecretProvider {
     protected void processSecret(String secretString) {
         T secret;
         try {
-            Class<T> actualTypeArgument = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-            secret = new ObjectMapper().readValue(secretString, actualTypeArgument);
+            secret = new ObjectMapper().readValue(secretString, getSecretEntityType());
         } catch (IOException e) {
             throw new SecurityException("Unable to get a Secret.", e);
         }
         processSecret(secret);
     }
+
+    protected abstract Class<T> getSecretEntityType();
 
     protected abstract void processSecret(T secret);
 }

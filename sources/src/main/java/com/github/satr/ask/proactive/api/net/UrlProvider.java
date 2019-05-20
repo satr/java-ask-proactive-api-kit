@@ -28,7 +28,7 @@ public final class UrlProvider {
     }
 
     private static ApiUrlRegionGroup getApiRegionGroup() {
-        String apiRegionGroup = System.getenv(EnvironmentVariable.ApiRegionGroup);
+        String apiRegionGroup = EnvironmentVariable.getApiRegionGroup();
         if ("Europe".equalsIgnoreCase(apiRegionGroup))
             return ApiUrlRegionGroup.Europe;
         if ("FarEast".equalsIgnoreCase(apiRegionGroup))
@@ -37,7 +37,7 @@ public final class UrlProvider {
     }
 
     private static ApiEnvironment getApiEnvironment() {
-        String apiEnv = System.getenv(EnvironmentVariable.ApiEnvironment);
+        String apiEnv = EnvironmentVariable.getApiEnvironment();
         return "Prod".equalsIgnoreCase(apiEnv) ? ApiEnvironment.Prod : ApiEnvironment.Dev;
     }
 

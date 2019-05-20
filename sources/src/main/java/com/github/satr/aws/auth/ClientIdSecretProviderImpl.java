@@ -13,6 +13,11 @@ public class ClientIdSecretProviderImpl extends AwsSecretAsJsonProvider<ClientId
     }
 
     @Override
+    protected Class<ClientIdSecretPair> getSecretEntityType() {
+        return ClientIdSecretPair.class;
+    }
+
+    @Override
     protected void processSecret(ClientIdSecretPair secret) {
         clientId = secret.getClientId();
         clientSecret = secret.getClientSecret();

@@ -3,8 +3,9 @@ package com.github.satr.ask.proactive.api.events;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.satr.ask.proactive.api.events.schemas.EventSchema;
+import com.github.satr.common.DateTimeUtil;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class ProactiveEvent {
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     @JsonProperty("timestamp") private String timestamp = setUniqueReferenceId();
     @JsonProperty("referenceId") private String referenceId;
     @JsonProperty("expiryTime") private String expiryTime;
@@ -33,7 +33,7 @@ public class ProactiveEvent {
     }
 
     public void setTimestampNew() {
-        setTimestamp(dateTimeFormatter.format(LocalDateTime.now()));
+        setTimestamp(DateTimeUtil.toIsoString(DateTimeUtil.utcNow()));
     }
 
     public String getReferenceId() {
@@ -48,12 +48,14 @@ public class ProactiveEvent {
         return expiryTime;
     }
 
+    // expiryTime should be at least 5 minutes in the future and no more than 24 hours after the current time
     public void setExpiryTime(String expiryTime) {
         this.expiryTime = expiryTime;
     }
 
-    public void setExpiryTime(LocalDateTime expiryTime) {
-        setExpiryTime(dateTimeFormatter.format(expiryTime));
+    // expiryTime should be at least 5 minutes in the future and no more than 24 hours after the current time
+    public void setExpiryTime(OffsetDateTime expiryTime) {
+        setExpiryTime(DateTimeUtil.toIsoString(DateTimeUtil.toUtc(expiryTime)));
     }
 
     public Event getEvent() {
@@ -81,35 +83,35 @@ public class ProactiveEvent {
     }
 
     public void setExpiryTimeNowPlus(TemporalAmount period) {
-        setExpiryTime(LocalDateTime.now().plus(period));
+        setExpiryTime(OffsetDateTime.now().plus(period));
     }
 
     public void setExpiryTimeNowPlusSeconds(int seconds) {
-        setExpiryTime(LocalDateTime.now().plusSeconds(seconds));
+        setExpiryTime(OffsetDateTime.now().plusSeconds(seconds));
     }
 
     public void setExpiryTimeNowPlusMinutes(int minutes) {
-        setExpiryTime(LocalDateTime.now().plusMinutes(minutes));
+        setExpiryTime(OffsetDateTime.now().plusMinutes(minutes));
     }
 
     public void setExpiryTimeNowPlusHours(int hours) {
-        setExpiryTime(LocalDateTime.now().plusHours(hours));
+        setExpiryTime(OffsetDateTime.now().plusHours(hours));
     }
 
     public void setExpiryTimeNowPlusDays(int days) {
-        setExpiryTime(LocalDateTime.now().plusDays(days));
+        setExpiryTime(OffsetDateTime.now().plusDays(days));
     }
 
     public void setExpiryTimeNowPlusWeeks(int weeks) {
-        setExpiryTime(LocalDateTime.now().plusWeeks(weeks));
+        setExpiryTime(OffsetDateTime.now().plusWeeks(weeks));
     }
 
     public void setExpiryTimeNowPlusMonths(int months) {
-        setExpiryTime(LocalDateTime.now().plusMonths(months));
+        setExpiryTime(OffsetDateTime.now().plusMonths(months));
     }
 
     public void setExpiryTimeNowPlusYears(int years) {
-        setExpiryTime(LocalDateTime.now().plusYears(years));
+        setExpiryTime(OffsetDateTime.now().plusYears(years));
     }
 
     public void addLocalizedAttribute(EventLocalizedAttribute localizedAttribute) {

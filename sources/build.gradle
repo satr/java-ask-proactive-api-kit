@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.github.satr'
-version '1.1-SNAPSHOT'
+version '1.2-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
@@ -26,8 +26,8 @@ dependencies {
 }
 
 //Include dependencies in jar-file - to deploy to AWS Lambda function
-//jar {
-//    from {
-//        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-//    }
-//}
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

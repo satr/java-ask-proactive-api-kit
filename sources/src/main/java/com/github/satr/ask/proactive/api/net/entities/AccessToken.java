@@ -2,17 +2,15 @@ package com.github.satr.ask.proactive.api.net.entities;
 // Copyright © 2019, github.com/satr, MIT License
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import com.github.satr.common.DateTimeUtil;
+import java.time.OffsetDateTime;
 
 public class AccessToken {
-    private LocalDateTime expirationDateTime = null;
+    private OffsetDateTime expirationDateTime = null;
     @JsonProperty("access_token") private String accessToken;
     @JsonProperty("token_type") private String tokenType;
     @JsonProperty("scope") private String scope;
     @JsonProperty("expires_in") private int expiresIn;
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
@@ -45,21 +43,21 @@ public class AccessToken {
     public void setExpiresIn(int expiresIn) {
         this.expiresIn = expiresIn;
         if(expiresIn > 60)
-            expiresIn -= 60;//give some time
-        expirationDateTime = LocalDateTime.now().plusSeconds(expiresIn);
+            expiresIn -= 60;//short expiration on one minute
+        expirationDateTime = DateTimeUtil.utcNow().plusSeconds(expiresIn);
     }
 
     public boolean isExpired() {
-        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now();
         return isExpired(now);
     }
 
     //for testing purpose
-    public boolean isExpired(LocalDateTime now) {
+    public boolean isExpired(OffsetDateTime now) {
         return expirationDateTime.isBefore(now);
     }
 
     public String expiredAsString() {
-        return dateTimeFormatter.format(expirationDateTime);
+        return DateTimeUtil.toIsoString(expirationDateTime);
     }
 }

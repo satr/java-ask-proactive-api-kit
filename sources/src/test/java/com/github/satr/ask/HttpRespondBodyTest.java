@@ -2,17 +2,13 @@ package com.github.satr.ask;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.satr.ask.components.ObjectMother;
-import com.github.satr.ask.proactive.api.events.ProactiveEvent;
-import com.github.satr.ask.proactive.api.net.AskProactiveEventHttpClient;
 import com.github.satr.ask.proactive.api.net.entities.AccessToken;
 import com.github.satr.ask.proactive.api.net.entities.ErrorRespond;
-import com.github.satr.common.OperationResult;
-import com.github.satr.common.net.ApacheHttpClientWrapper;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
@@ -42,7 +38,7 @@ public class HttpRespondBodyTest {
         try {
             AccessToken accessToken = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).readValue(text, AccessToken.class);
             assertEquals(accessToken.getExpiresIn(), 3600);
-            assertTrue(accessToken.isExpired(LocalDateTime.now().plusSeconds(3600)));
+            assertTrue(accessToken.isExpired(OffsetDateTime.now().plusSeconds(3600)));
             assertNotNull(accessToken.expiredAsString());
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,12 +58,13 @@ public class HttpRespondBodyTest {
         String input = "{\"access_token\":\"Atc|00000000000000P3BV3NKW8C43xIL9GFnWyEt3bk_aA\",\"scope\":\"alexa::proactive_events\",\"token_type\":\"bearer\",\"expires_in\":3600}";
         assertTrue(input.contains("\"access_token\"") && input.contains("\"scope\"") && input.contains("\"token_type\"") && input.contains("\"expires_in\""));
     }
+
     @Test
     public void testMapBearerTokenFailedRespond() {
         String text = "{\"error_index\":\"7l8OuXNldD3V7gE0MmuBjV8y1aNgFLEg==\",\"error_description\":\"Malformed request\",\"error\":\"invalid_request\"}";
         try {
             ErrorRespond respond = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                                        .readValue(text, ErrorRespond.class);
+                    .readValue(text, ErrorRespond.class);
             assertNotNull(respond);
             assertEquals(respond.getError(), "invalid_request");
             assertEquals(respond.getErrorDescription(), "Malformed request");

@@ -57,7 +57,7 @@ public class SendProactiveEventRequestHandlerTest {
 
     @Test
     public void handleRequest() {
-        proactiveEvent = ObjectMother.getProactiveEvent(5);
+        proactiveEvent = ObjectMother.getProactiveEvent(5, 10);
         when(proactiveEventProvider.getEvent()).thenReturn(proactiveEvent);
         ApacheHttpClientWrapper httpClient = new ApacheHttpClientWrapper();//.withLoggingToConsole();
         TestClientIdSecretProvider secretProvider = ObjectMother.getTestClientIdSecretProvider();
@@ -72,7 +72,7 @@ public class SendProactiveEventRequestHandlerTest {
 
     @Test
     public void handleRepeatedRequest() throws InvalidRegionNameException {
-        proactiveEvent = ObjectMother.getProactiveEvent(5);
+        proactiveEvent = ObjectMother.getProactiveEvent(5, 10);
         when(proactiveEventProvider.getEvent()).thenReturn(proactiveEvent);
         ApacheHttpClientWrapper httpClient = new ApacheHttpClientWrapper();//.withLoggingToConsole();
         TestClientIdSecretProvider secretProvider = ObjectMother.getTestClientIdSecretProvider();

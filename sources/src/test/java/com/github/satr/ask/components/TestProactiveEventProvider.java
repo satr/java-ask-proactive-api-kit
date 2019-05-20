@@ -6,6 +6,6 @@ import com.github.satr.ask.proactive.api.events.ProactiveEvent;
 public class TestProactiveEventProvider implements ProactiveEventProvider {
     @Override
     public ProactiveEvent getEvent() {
-        return ObjectMother.getProactiveEvent(10);
+        return ObjectMother.getProactiveEvent(1,10);
     }
 }

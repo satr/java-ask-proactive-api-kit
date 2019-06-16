@@ -2,6 +2,8 @@
 Alexa Skills Proactive API kit
 This kit has boierplate code to send Proactive Events to Alexa Skills over AWS Lambda function. Currently supports only `MediaContent` event.
 
+"Get started with Amazon Alexa Skills Proactive Events API": [article](https://medium.com/swlh/get-started-with-amazon-alexa-skills-proactive-events-api-5b082bcb282c), [video](https://www.youtube.com/watch?v=6Ul_ry2hq2w)
+
 Create a Java project with Gradle
 
 Add dependency in the `build.gradle` file:

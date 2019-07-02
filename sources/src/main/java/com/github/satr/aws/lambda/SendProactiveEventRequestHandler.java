@@ -9,9 +9,8 @@ import com.github.satr.ask.proactive.api.EnvironmentVariable;
 import com.github.satr.ask.proactive.api.ProactiveEventProvider;
 import com.github.satr.ask.proactive.api.events.ProactiveEvent;
 import com.github.satr.ask.proactive.api.net.AskProactiveEventHttpClient;
+import com.github.satr.aws.auth.*;
 import com.github.satr.aws.regions.InvalidRegionNameException;
-import com.github.satr.aws.auth.ClientIdSecretProvider;
-import com.github.satr.aws.auth.ClientIdSecretProviderImpl;
 import com.github.satr.common.OperationResult;
 import com.github.satr.common.net.ApacheHttpClientWrapper;
 
@@ -30,7 +29,19 @@ public abstract class SendProactiveEventRequestHandler implements RequestHandler
 
     public SendProactiveEventRequestHandler(String alexaClientIdSecretAwsSecretName, String region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
         this(new ApacheHttpClientWrapper(),
-                new ClientIdSecretProviderImpl(alexaClientIdSecretAwsSecretName, region),
+                new AwsSecretsClientIdSecretProvider(alexaClientIdSecretAwsSecretName, region),
+                proactiveEventProvider);
+    }
+
+    public SendProactiveEventRequestHandler(String alexaSkillClientId, String alexaSkillClientSecret, AlexaSkillClientIdSecretSource clientIdSecretSource, Regions region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
+        this(alexaSkillClientId, alexaSkillClientSecret, clientIdSecretSource, region.getName(), proactiveEventProvider);
+    }
+
+    public SendProactiveEventRequestHandler(String alexaSkillClientId, String alexaSkillClientSecret, AlexaSkillClientIdSecretSource clientIdSecretSource, String region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
+        this(new ApacheHttpClientWrapper(),
+                (ClientIdSecretProvider) (clientIdSecretSource == AlexaSkillClientIdSecretSource.EnvironmentVariables
+                        ? new EnvironmentVariablesClientIdSecretAwsSecretProvider(alexaSkillClientId, alexaSkillClientSecret)
+                        : new BasicClientIdSecretAwsSecretProvider(alexaSkillClientId, alexaSkillClientSecret)),
                 proactiveEventProvider);
     }
 

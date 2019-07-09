@@ -4,15 +4,15 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.github.satr.ask.components.ObjectMother;
-import com.github.satr.ask.components.TestSendProactiveEventRequestHandler;
 import com.github.satr.ask.components.TestClientIdSecretProvider;
+import com.github.satr.ask.components.TestSendProactiveEventRequestHandler;
 import com.github.satr.ask.proactive.api.ProactiveEventProvider;
 import com.github.satr.ask.proactive.api.events.ProactiveEvent;
 import com.github.satr.aws.auth.AlexaSkillClientIdSecretSource;
-import com.github.satr.aws.regions.InvalidRegionNameException;
+import com.github.satr.aws.auth.RegionNameSource;
 import com.github.satr.aws.lambda.SendProactiveEventRequestHandler;
+import com.github.satr.aws.regions.InvalidRegionNameException;
 import com.github.satr.common.net.ApacheHttpClientWrapper;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,9 +22,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SendProactiveEventRequestHandlerTest {
@@ -128,7 +130,7 @@ public class SendProactiveEventRequestHandlerTest {
         when(proactiveEventProvider.getEvents()).thenReturn(proactiveEvents);
 
         requestHandler = new TestSendProactiveEventRequestHandler(clientId, clientSecret,
-                AlexaSkillClientIdSecretSource.StringValues, "US_EAST_1", proactiveEventProvider);
+                AlexaSkillClientIdSecretSource.StringValues, "US_EAST_1", RegionNameSource.StringValue, proactiveEventProvider);
 
         String respond = requestHandler.handleRequest(null, context);
 
@@ -164,7 +166,7 @@ public class SendProactiveEventRequestHandlerTest {
 
         //Put to the test's run configuration environment variables "SKILL_CLIENT_ID" and "SKILL_CLIENT_SECRET" with corresponding values
         requestHandler = new TestSendProactiveEventRequestHandler("SKILL_CLIENT_ID", "SKILL_CLIENT_SECRET",
-                AlexaSkillClientIdSecretSource.EnvironmentVariables, "US_EAST_1", proactiveEventProvider);
+                AlexaSkillClientIdSecretSource.EnvironmentVariables, "US_EAST_1", RegionNameSource.StringValue, proactiveEventProvider);
 
         String respond = requestHandler.handleRequest(null, context);
 

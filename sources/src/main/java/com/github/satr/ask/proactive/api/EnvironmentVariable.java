@@ -7,14 +7,18 @@ public final class EnvironmentVariable {
     public static final String LogLevel = "LOG_LEVEL";//"Warning", "Info" (default), "Verbose"
 
     public static String getApiEnvironment() {
-        return System.getenv(ApiEnvironment);
+        return get(ApiEnvironment);
     }
 
     public static String getApiRegionGroup() {
-        return System.getenv(ApiRegionGroup);
+        return get(ApiRegionGroup);
     }
 
     public static String getLogLevel() {
-        return System.getenv(LogLevel);
+        return get(LogLevel);
+    }
+
+    public static String get(String variableName) {
+        return System.getenv(variableName);
     }
 }

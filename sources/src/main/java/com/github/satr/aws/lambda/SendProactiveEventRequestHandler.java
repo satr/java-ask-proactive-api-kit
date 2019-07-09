@@ -23,33 +23,56 @@ public abstract class SendProactiveEventRequestHandler implements RequestHandler
     private final ProactiveEventProvider proactiveEventProvider;
     private AskProactiveEventHttpClient httpClientWrapper;
 
+    /**
+    * @param alexaClientIdSecretAwsSecretName     the name of the key-value entry in the AWS SecretManager, holding values in corresponding keys "client_id", "client_secret"
+    * @param region                               the region name of the key-value entry in the AWS SecretManager
+    *                                                   <li>{@link RegionNameSource#StringValue} the name of a region like: "US_EAST_1"</li>
+    *                                                   <li>{@link RegionNameSource#EnvironmentVariables} the name of an environment variable, holding a name of a region like: "US_EAST_1"</li>
+    * @param proactiveEventProvider               the component, implementing the interface {@link ProactiveEventProvider}, provides a list of events to be sent
+    */
+    public SendProactiveEventRequestHandler(String alexaClientIdSecretAwsSecretName, String region, RegionNameSource regionNameSource, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
+        this(new ApacheHttpClientWrapper(), new AwsSecretsClientIdSecretProvider(alexaClientIdSecretAwsSecretName, getRegion(region, regionNameSource)), proactiveEventProvider);
+    }
+
+    /**
+     * @param alexaClientIdSecretAwsSecretName     the name of the key-value entry in the AWS SecretManager, holding values in corresponding keys "client_id", "client_secret"
+     * @param region                               the {@link Regions}-value - a region of the key-value entry in the AWS SecretManager
+     * @param proactiveEventProvider               the component, implementing the interface {@link ProactiveEventProvider}, provides a list of events to be sent
+     */
     public SendProactiveEventRequestHandler(String alexaClientIdSecretAwsSecretName, Regions region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
-        this(alexaClientIdSecretAwsSecretName, region.getName(), proactiveEventProvider);
+        this(alexaClientIdSecretAwsSecretName, region.getName(), RegionNameSource.StringValue, proactiveEventProvider);
     }
 
-    public SendProactiveEventRequestHandler(String alexaClientIdSecretAwsSecretName, String region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
+    /**
+     * @param alexaSkillClientId                   the Skill ID of the Alexa Skill
+     * @param alexaSkillClientSecret               the Skill Secret of the Alexa Skill
+     * @param clientIdSecretSource                 the source of <code>alexaSkillClientId</code> and <code>alexaSkillClientSecret</code>
+     *                                                   <li>{@link AlexaSkillClientIdSecretSource#StringValues} Skill ID and Skill Secret string values</li>
+     *                                                   <li>{@link AlexaSkillClientIdSecretSource#EnvironmentVariables} the name of an environment variable, holding a name of Skill ID and Skill Secret string values</li>
+     * @param proactiveEventProvider               the component, implementing the interface {@link ProactiveEventProvider}, provides a list of events to be sent
+     */
+    public SendProactiveEventRequestHandler(String alexaSkillClientId, String alexaSkillClientSecret, AlexaSkillClientIdSecretSource clientIdSecretSource, ProactiveEventProvider proactiveEventProvider) {
         this(new ApacheHttpClientWrapper(),
-                new AwsSecretsClientIdSecretProvider(alexaClientIdSecretAwsSecretName, region),
+                getSecretProvider(alexaSkillClientId, alexaSkillClientSecret, clientIdSecretSource),
                 proactiveEventProvider);
     }
 
-    public SendProactiveEventRequestHandler(String alexaSkillClientId, String alexaSkillClientSecret, AlexaSkillClientIdSecretSource clientIdSecretSource, Regions region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
-        this(alexaSkillClientId, alexaSkillClientSecret, clientIdSecretSource, region.getName(), proactiveEventProvider);
-    }
-
-    public SendProactiveEventRequestHandler(String alexaSkillClientId, String alexaSkillClientSecret, AlexaSkillClientIdSecretSource clientIdSecretSource, String region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
-        this(new ApacheHttpClientWrapper(),
-                (ClientIdSecretProvider) (clientIdSecretSource == AlexaSkillClientIdSecretSource.EnvironmentVariables
-                        ? new EnvironmentVariablesClientIdSecretAwsSecretProvider(alexaSkillClientId, alexaSkillClientSecret)
-                        : new BasicClientIdSecretAwsSecretProvider(alexaSkillClientId, alexaSkillClientSecret)),
-                proactiveEventProvider);
-    }
-
+    /**
+     * This constructor is mostly for fine tuned inheritors or for unit-testing purpose
+     * @param httpClientWrapper                    the {@link ApacheHttpClientWrapper} instance
+     * @param secretProvider                       the {@link ClientIdSecretProvider} instance, providing the Skill ID and Skill Secret string values
+     * @param proactiveEventProvider               the component, implementing the interface {@link ProactiveEventProvider}, provides a list of events to be sent
+     */
     public SendProactiveEventRequestHandler(ApacheHttpClientWrapper httpClientWrapper, ClientIdSecretProvider secretProvider, ProactiveEventProvider proactiveEventProvider) {
         this.httpClientWrapper = new AskProactiveEventHttpClient(secretProvider, httpClientWrapper);
         this.proactiveEventProvider = proactiveEventProvider;
     }
 
+    /**
+     * The handler of AWS Lambda requests
+     * @param input                                the key-value pairs of a request input
+     * @param context                              the instance of the AWS Lambda request {@link Context}
+     */
     @Override
     public String handleRequest(Map<String, String> input, Context context) {
         LambdaLogger logger = context.getLogger();
@@ -80,6 +103,16 @@ public abstract class SendProactiveEventRequestHandler implements RequestHandler
             outputMessages.add(outputMessage);
         }
         return String.join("\n", outputMessages);
+    }
+
+    private static String getRegion(String region, RegionNameSource regionNameSource) {
+        return regionNameSource == RegionNameSource.StringValue ? region: EnvironmentVariable.get(region);
+    }
+
+    private static ClientIdSecretProvider getSecretProvider(String alexaSkillClientId, String alexaSkillClientSecret, AlexaSkillClientIdSecretSource clientIdSecretSource) {
+        return (ClientIdSecretProvider) (clientIdSecretSource == AlexaSkillClientIdSecretSource.EnvironmentVariables
+                ? new EnvironmentVariablesClientIdSecretAwsSecretProvider(alexaSkillClientId, alexaSkillClientSecret)
+                : new BasicClientIdSecretAwsSecretProvider(alexaSkillClientId, alexaSkillClientSecret));
     }
 
     private void logResult(LambdaLogger logger, OperationResult result) {

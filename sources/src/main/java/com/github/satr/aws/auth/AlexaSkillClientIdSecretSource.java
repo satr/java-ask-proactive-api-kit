@@ -1,4 +1,6 @@
 package com.github.satr.aws.auth;
+// Copyright © 2019, github.com/satr, MIT License
+
 /**
  * The source of alexaSkillClientId and alexaSkillClientSecret
  *   <li>{@link AlexaSkillClientIdSecretSource#StringValues} Skill ID and Skill Secret string values</li>

@@ -3,7 +3,6 @@ package com.github.satr.ask.proactive.api.net;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.satr.ask.proactive.api.ApiEnvironment;
 import com.github.satr.ask.proactive.api.events.ProactiveEvent;
 import com.github.satr.ask.proactive.api.net.entities.AccessToken;
 import com.github.satr.ask.proactive.api.net.entities.ErrorRespond;
@@ -11,8 +10,8 @@ import com.github.satr.aws.auth.ClientIdSecretProvider;
 import com.github.satr.common.OperationResult;
 import com.github.satr.common.OperationValueResult;
 import com.github.satr.common.OperationValueResultImpl;
-import com.github.satr.common.net.ApacheHttpClientWrapper;
 import com.github.satr.common.net.HttpClientAction;
+import com.github.satr.common.net.HttpClientWrapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -29,7 +28,7 @@ import java.util.List;
 import static org.apache.http.util.TextUtils.isEmpty;
 
 public class AskProactiveEventHttpClient {
-    private final ApacheHttpClientWrapper httpClientWrapper;
+    private final HttpClientWrapper httpClientWrapper;
     private final String authEndpoint;
     private HttpPost bearerTokenRequest;
     private AccessToken accessToken;
@@ -37,7 +36,7 @@ public class AskProactiveEventHttpClient {
     private ClientIdSecretProvider clientIdSecretProvider;
     private HttpPost eventActionRequest;
 
-    public AskProactiveEventHttpClient(ClientIdSecretProvider clientIdSecretProvider, ApacheHttpClientWrapper httpClientWrapper) {
+    public AskProactiveEventHttpClient(ClientIdSecretProvider clientIdSecretProvider, HttpClientWrapper httpClientWrapper) {
         this.clientIdSecretProvider = clientIdSecretProvider;
         authEndpoint = UrlProvider.Auth.BearerToken;
         apiEndpoint = UrlProvider.getApiEndpont();

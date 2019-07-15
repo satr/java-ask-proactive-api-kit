@@ -1,4 +1,5 @@
 package com.github.satr.common;
+// Copyright © 2019, github.com/satr, MIT License
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;

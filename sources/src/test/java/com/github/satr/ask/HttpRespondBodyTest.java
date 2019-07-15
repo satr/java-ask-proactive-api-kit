@@ -31,7 +31,6 @@ public class HttpRespondBodyTest {
         }
     }
 
-
     @Test
     public void testBearerTokenExpiredAfterOneSecond() {
         String text = "{\"access_token\":\"Atc|00000000000000000mHsYGQAnWyEt3bk_aA\",\"scope\":\"alexa::proactive_events\",\"token_type\":\"bearer\",\"expires_in\":3600}";

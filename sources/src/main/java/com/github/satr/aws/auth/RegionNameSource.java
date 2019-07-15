@@ -1,6 +1,5 @@
 package com.github.satr.aws.auth;
-
-import com.github.satr.ask.proactive.api.ProactiveEventProvider;
+// Copyright © 2019, github.com/satr, MIT License
 
 /**
  * The source of a region name of the AWS SecretManager, holding values in corresponding keys "client_id", "client_secret"

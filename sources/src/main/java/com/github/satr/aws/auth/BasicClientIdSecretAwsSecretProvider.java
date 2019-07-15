@@ -1,4 +1,5 @@
 package com.github.satr.aws.auth;
+// Copyright © 2019, github.com/satr, MIT License
 
 public class BasicClientIdSecretAwsSecretProvider implements ClientIdSecretProvider {
     private final String clientId;

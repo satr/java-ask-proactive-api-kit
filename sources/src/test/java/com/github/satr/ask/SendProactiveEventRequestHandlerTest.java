@@ -5,11 +5,10 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.github.satr.ask.components.ObjectMother;
 import com.github.satr.ask.components.TestClientIdSecretProvider;
-import com.github.satr.ask.components.TestSendProactiveEventRequestHandler;
+import com.github.satr.ask.components.TestProactiveEventProvider;
 import com.github.satr.ask.proactive.api.ProactiveEventProvider;
 import com.github.satr.ask.proactive.api.events.ProactiveEvent;
 import com.github.satr.aws.auth.AlexaSkillClientIdSecretSource;
-import com.github.satr.aws.auth.RegionNameSource;
 import com.github.satr.aws.lambda.SendProactiveEventRequestHandler;
 import com.github.satr.aws.regions.InvalidRegionNameException;
 import com.github.satr.common.net.ApacheHttpClientWrapper;
@@ -51,9 +50,13 @@ public class SendProactiveEventRequestHandlerTest {
                 .when(loggerMock).log(anyString());
     }
 
+    //Create the secret with a name "AlexaNotifier" (or another name, and put it here) in the AWS SecretManager, in the us-east-1 region (N.Virginia)
+    //with key-values:
+    //'client_id':'<CLIENT_ID_from_Alexa_skill_dashboard>'
+    //'client_secret':'<CLIENT_SECRET_from_Alexa_skill_dashboard>'
     @Test
     public void handleRequestWithDefaultCtor() throws InvalidRegionNameException {
-        requestHandler = new TestSendProactiveEventRequestHandler();
+        requestHandler = new SendProactiveEventRequestHandler("AlexaNotifier", Regions.US_EAST_1, new TestProactiveEventProvider());
 
         String respond = requestHandler.handleRequest(null, context);
 
@@ -70,7 +73,7 @@ public class SendProactiveEventRequestHandlerTest {
         ApacheHttpClientWrapper httpClient = new ApacheHttpClientWrapper();//.withLoggingToConsole();
         TestClientIdSecretProvider secretProvider = ObjectMother.getTestClientIdSecretProvider();
 
-        requestHandler = new TestSendProactiveEventRequestHandler(httpClient, secretProvider, proactiveEventProvider);
+        requestHandler = new SendProactiveEventRequestHandler(httpClient, secretProvider, proactiveEventProvider);
 
         String respond = requestHandler.handleRequest(null, context);
 
@@ -81,13 +84,13 @@ public class SendProactiveEventRequestHandlerTest {
     }
 
     @Test
-    public void testRepeatedRequestTest() throws InvalidRegionNameException {
+    public void testRepeatedRequestTest() {
         proactiveEvents = ObjectMother.getProactiveEvents(5, 10);
         when(proactiveEventProvider.getEvents()).thenReturn(proactiveEvents);
         ApacheHttpClientWrapper httpClient = new ApacheHttpClientWrapper();//.withLoggingToConsole();
         TestClientIdSecretProvider secretProvider = ObjectMother.getTestClientIdSecretProvider();
 
-        requestHandler = new TestSendProactiveEventRequestHandler(httpClient, secretProvider, proactiveEventProvider);
+        requestHandler = new SendProactiveEventRequestHandler(httpClient, secretProvider, proactiveEventProvider);
 
         String respond = requestHandler.handleRequest(null, context);
 
@@ -112,8 +115,8 @@ public class SendProactiveEventRequestHandlerTest {
         proactiveEvents = ObjectMother.getProactiveEvents(5, 10);
         when(proactiveEventProvider.getEvents()).thenReturn(proactiveEvents);
 
-        requestHandler = new TestSendProactiveEventRequestHandler(clientId, clientSecret,
-                AlexaSkillClientIdSecretSource.StringValues, Regions.US_EAST_1, proactiveEventProvider);
+        requestHandler = new SendProactiveEventRequestHandler(clientId, clientSecret,
+                AlexaSkillClientIdSecretSource.StringValues, proactiveEventProvider);
 
         String respond = requestHandler.handleRequest(null, context);
 
@@ -125,12 +128,12 @@ public class SendProactiveEventRequestHandlerTest {
 
     @Test
     @Ignore("Before running the test - Specify your ClientId and ClientSecret values in corresponding fields")
-    public void testStringValuesClientIdSecretSourceWithRegionString() throws InvalidRegionNameException {
+    public void testClientIdSecretStringValuesSourceWith() {
         proactiveEvents = ObjectMother.getProactiveEvents(5, 10);
         when(proactiveEventProvider.getEvents()).thenReturn(proactiveEvents);
 
-        requestHandler = new TestSendProactiveEventRequestHandler(clientId, clientSecret,
-                AlexaSkillClientIdSecretSource.StringValues, "US_EAST_1", RegionNameSource.StringValue, proactiveEventProvider);
+        requestHandler = new SendProactiveEventRequestHandler(clientId, clientSecret,
+                AlexaSkillClientIdSecretSource.StringValues, proactiveEventProvider);
 
         String respond = requestHandler.handleRequest(null, context);
 
@@ -142,31 +145,13 @@ public class SendProactiveEventRequestHandlerTest {
 
     @Test
     @Ignore("Before running the test - put to the test's run configuration environment variables \"SKILL_CLIENT_ID\" and \"SKILL_CLIENT_SECRET\" with corresponding values")
-    public void testEnvironmentVariablesClientIdSecretSourceWithRegion() throws InvalidRegionNameException {
+    public void testClientIdSecretEnvironmentVariablesSource() {
         proactiveEvents = ObjectMother.getProactiveEvents(5, 10);
         when(proactiveEventProvider.getEvents()).thenReturn(proactiveEvents);
 
         //Put to the test's run configuration environment variables "SKILL_CLIENT_ID" and "SKILL_CLIENT_SECRET" with corresponding values
-        requestHandler = new TestSendProactiveEventRequestHandler("SKILL_CLIENT_ID", "SKILL_CLIENT_SECRET",
-                AlexaSkillClientIdSecretSource.EnvironmentVariables, Regions.US_EAST_1, proactiveEventProvider);
-
-        String respond = requestHandler.handleRequest(null, context);
-
-        System.out.println(respond);
-        assertNotNull(respond);
-        assertTrue(respond.startsWith("Event "));
-        assertTrue(respond.contains(" been sent with referenceId: " + proactiveEvents.get(0).getReferenceId()));
-    }
-
-    @Test
-    @Ignore("Before running the test - put to the test's run configuration environment variables \"SKILL_CLIENT_ID\" and \"SKILL_CLIENT_SECRET\" with corresponding values")
-    public void testEnvironmentVariablesClientIdSecretSourceWithRegionString() throws InvalidRegionNameException {
-        proactiveEvents = ObjectMother.getProactiveEvents(5, 10);
-        when(proactiveEventProvider.getEvents()).thenReturn(proactiveEvents);
-
-        //Put to the test's run configuration environment variables "SKILL_CLIENT_ID" and "SKILL_CLIENT_SECRET" with corresponding values
-        requestHandler = new TestSendProactiveEventRequestHandler("SKILL_CLIENT_ID", "SKILL_CLIENT_SECRET",
-                AlexaSkillClientIdSecretSource.EnvironmentVariables, "US_EAST_1", RegionNameSource.StringValue, proactiveEventProvider);
+        requestHandler = new SendProactiveEventRequestHandler("SKILL_CLIENT_ID", "SKILL_CLIENT_SECRET",
+                AlexaSkillClientIdSecretSource.EnvironmentVariables, proactiveEventProvider);
 
         String respond = requestHandler.handleRequest(null, context);
 

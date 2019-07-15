@@ -1,4 +1,5 @@
 package com.github.satr.aws.regions;
+// Copyright © 2019, github.com/satr, MIT License
 
 import com.amazonaws.regions.Regions;
 

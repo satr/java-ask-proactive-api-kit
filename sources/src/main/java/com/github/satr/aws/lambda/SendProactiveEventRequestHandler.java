@@ -8,18 +8,20 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.github.satr.ask.proactive.api.EnvironmentVariable;
 import com.github.satr.ask.proactive.api.ProactiveEventProvider;
 import com.github.satr.ask.proactive.api.events.ProactiveEvent;
+import com.github.satr.ask.proactive.api.net.HttpClientWrapperFactory;
 import com.github.satr.ask.proactive.api.net.AskProactiveEventHttpClient;
 import com.github.satr.aws.auth.*;
 import com.github.satr.aws.regions.InvalidRegionNameException;
 import com.github.satr.common.OperationResult;
 import com.github.satr.common.net.ApacheHttpClientWrapper;
+import com.github.satr.common.net.HttpClientWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /// set environment variables in a Lambda function configuration dashboard (names and values are described in <ref=EnvironmentVariable>). Default: Dev, NorthEast
-public abstract class SendProactiveEventRequestHandler implements RequestHandler<Map<String, String>, String> {
+public class SendProactiveEventRequestHandler implements RequestHandler<Map<String, String>, String> {
     private final ProactiveEventProvider proactiveEventProvider;
     private AskProactiveEventHttpClient httpClientWrapper;
 
@@ -52,18 +54,18 @@ public abstract class SendProactiveEventRequestHandler implements RequestHandler
      * @param proactiveEventProvider               the component, implementing the interface {@link ProactiveEventProvider}, provides a list of events to be sent
      */
     public SendProactiveEventRequestHandler(String alexaSkillClientId, String alexaSkillClientSecret, AlexaSkillClientIdSecretSource clientIdSecretSource, ProactiveEventProvider proactiveEventProvider) {
-        this(new ApacheHttpClientWrapper(),
+        this(HttpClientWrapperFactory.getClient(),
                 getSecretProvider(alexaSkillClientId, alexaSkillClientSecret, clientIdSecretSource),
                 proactiveEventProvider);
     }
 
     /**
      * This constructor is mostly for fine tuned inheritors or for unit-testing purpose
-     * @param httpClientWrapper                    the {@link ApacheHttpClientWrapper} instance
+     * @param httpClientWrapper                    the {@link HttpClientWrapper} instance
      * @param secretProvider                       the {@link ClientIdSecretProvider} instance, providing the Skill ID and Skill Secret string values
      * @param proactiveEventProvider               the component, implementing the interface {@link ProactiveEventProvider}, provides a list of events to be sent
      */
-    public SendProactiveEventRequestHandler(ApacheHttpClientWrapper httpClientWrapper, ClientIdSecretProvider secretProvider, ProactiveEventProvider proactiveEventProvider) {
+    public SendProactiveEventRequestHandler(HttpClientWrapper httpClientWrapper, ClientIdSecretProvider secretProvider, ProactiveEventProvider proactiveEventProvider) {
         this.httpClientWrapper = new AskProactiveEventHttpClient(secretProvider, httpClientWrapper);
         this.proactiveEventProvider = proactiveEventProvider;
     }

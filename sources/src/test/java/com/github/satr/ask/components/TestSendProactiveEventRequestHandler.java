@@ -14,6 +14,10 @@ public class TestSendProactiveEventRequestHandler extends SendProactiveEventRequ
         super(alexaClientIdSecretAwsSecretName, region, proactiveEventProvider);
     }
 
+    //Create the secret with a name "AlexaNotifier" (or another name, and put it here) in the AWS SecretManager, in the us-east-1 region (N.Virginia)
+    //with key-values:
+    //'client_id':'<CLIENT_ID_from_Alexa_skill_dashboard>'
+    //'client_secret':'<CLIENT_SECRET_from_Alexa_skill_dashboard>'
     public TestSendProactiveEventRequestHandler() throws InvalidRegionNameException {
         super("AlexaNotifier", Regions.US_EAST_1, new TestProactiveEventProvider());
     }
@@ -27,7 +31,7 @@ public class TestSendProactiveEventRequestHandler extends SendProactiveEventRequ
     }
 
     public TestSendProactiveEventRequestHandler(String alexaSkillClientId, String alexaSkillClientSecret, AlexaSkillClientIdSecretSource clientIdSecretSource, Regions region, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
-        super(alexaSkillClientId, alexaSkillClientSecret, clientIdSecretSource, region, proactiveEventProvider);
+        super(alexaSkillClientId, alexaSkillClientSecret, clientIdSecretSource, proactiveEventProvider);
     }
 
     public TestSendProactiveEventRequestHandler(String alexaSkillClientId, String alexaSkillClientSecret, AlexaSkillClientIdSecretSource clientIdSecretSource, String region, RegionNameSource regionNameSource, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {

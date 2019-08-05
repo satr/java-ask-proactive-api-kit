@@ -14,10 +14,15 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import static org.junit.Assert.fail;
 
 public final class ObjectMother {
+
+    public static String getRandomString() {
+        return UUID.randomUUID().toString();
+    }
 
     public static TestClientIdSecretProvider getTestClientIdSecretProvider() {
         TestClientIdSecretProvider clientIdSecretProvider = null;
@@ -55,4 +60,14 @@ public final class ObjectMother {
         return events;
     }
 
+    public static String getErrorRespond(String errorDescription, String error) {
+        return String.format("{\"error_index\":\"%s\"," +
+                "\"error_description\":\"%s\"," +
+                "\"error\":\"%s\"}",
+                randomString(), errorDescription, error);
+    }
+
+    public static String randomString() {
+        return UUID.randomUUID().toString().replaceAll("-","");
+    }
 }

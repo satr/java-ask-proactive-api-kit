@@ -1,4 +1,4 @@
-package com.github.satr.ask;
+package com.github.satr.ask.client.real;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SendProactiveEventRequestHandlerTest {
+public class RealSendProactiveEventRequestHandlerTest {
     @Mock
     Context context;
     @Mock
@@ -52,8 +52,8 @@ public class SendProactiveEventRequestHandlerTest {
 
     //Create the secret with a name "AlexaNotifier" (or another name, and put it here) in the AWS SecretManager, in the us-east-1 region (N.Virginia)
     //with key-values:
-    //'client_id':'<CLIENT_ID_from_Alexa_skill_dashboard>'
-    //'client_secret':'<CLIENT_SECRET_from_Alexa_skill_dashboard>'
+    //'client_id':'<CLIENT_ID_from_Alexa_skill_dashboard_tab_PERMISSIONS>'
+    //'client_secret':'<CLIENT_SECRET_from_Alexa_skill_dashboard_tab_PERMISSIONS>'
     @Test
     public void handleRequestWithDefaultCtor() throws InvalidRegionNameException {
         requestHandler = new SendProactiveEventRequestHandler("AlexaNotifier", Regions.US_EAST_1, new TestProactiveEventProvider());

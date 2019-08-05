@@ -11,6 +11,7 @@ public class ErrorRespond {
     private final OffsetDateTime createdOn;
     @JsonProperty("error_description") private String errorDescription;
     @JsonProperty("error") private String error;
+    @JsonProperty("error_index") private String errorIndex;
 
     public ErrorRespond() {
         createdOn = OffsetDateTime.now();
@@ -39,4 +40,8 @@ public class ErrorRespond {
     public String createdOnAsString() {
         return DateTimeUtil.toIsoString(createdOn);
     }
+
+    public String getErrorIndex() { return errorIndex; }
+
+    public void setErrorIndex(String errorIndex) { this.errorIndex = errorIndex; }
 }

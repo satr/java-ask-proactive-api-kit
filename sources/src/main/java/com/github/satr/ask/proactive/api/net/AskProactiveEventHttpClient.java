@@ -54,8 +54,12 @@ public class AskProactiveEventHttpClient {
                 result.setValue(HttpOperationResult.Undefined);
 
                 invalidateBearerToken(result);
-                if (result.isFailed() || result.getValue() != HttpOperationResult.Success)
+                if (result.isFailed())
                     return result;
+                if (result.getValue() != HttpOperationResult.Success) {
+                    result.addError("Invalidation of a BearerToken had no success");
+                    return result;
+                }
 
                 sendRequest(proactiveEvent, result);
             }
@@ -74,16 +78,18 @@ public class AskProactiveEventHttpClient {
 
     private void requestBearerToken(OperationValueResult<HttpOperationResult> result) throws IOException {
         result.addVerbose("Requesting a new Bearer Token");
-        httpClientWrapper.executeRequest(new HttpClientAction() {
+        HttpClientAction httpClientAction = new HttpClientAction() {
             @Override
             public HttpUriRequest getHttpRequest() throws IOException {
                 return getBearerTokenRequest();
             }
+
             @Override
             public void processRespond(int statusCode, String respondBody) throws IOException {
                 trySetupBearerToken(statusCode, respondBody, result);
             }
-        });
+        };
+        httpClientWrapper.executeRequest(httpClientAction);
     }
 
     private void sendRequest(ProactiveEvent proactiveEvent, OperationValueResult<HttpOperationResult> result) throws IOException {
@@ -116,7 +122,7 @@ public class AskProactiveEventHttpClient {
     }
 
     private HttpPost getBearerTokenRequest() throws UnsupportedEncodingException {
-        if (bearerTokenRequest != null)
+        if (bearerTokenRequest != null)//token already initialized
             return bearerTokenRequest;
         bearerTokenRequest = new HttpPost(authEndpoint);
         bearerTokenRequest.setEntity(getFormParams(clientIdSecretProvider.getClientId(), clientIdSecretProvider.getClientSecret()));
@@ -154,11 +160,10 @@ public class AskProactiveEventHttpClient {
         } else {
             ErrorRespond errorRespond = getErrorRespond(respondBody);
             if(errorRespond != null)
-                result.addError("Error: %s, %s", errorRespond.getError(), errorRespond.getErrorDescription());
+                result.addError("%s, %s", errorRespond.getError(), errorRespond.getErrorDescription());
             else
-                result.addError("Failed request.");
+                result.addError("Failed request. Failure response body:\n%s", respondBody);
         }
-        result.addError("Failure response body:\n%s", respondBody);
         result.setValue(HttpOperationResult.Failed);
     }
 
@@ -185,7 +190,7 @@ public class AskProactiveEventHttpClient {
         } else {
             ErrorRespond errorRespond = getErrorRespond(respondBody);
             if(errorRespond != null)
-                result.addError("Error: %s, %s", errorRespond.getError(), errorRespond.getErrorDescription());
+                result.addError("%s, %s", errorRespond.getError(), errorRespond.getErrorDescription());
             else
                 result.addError("Failed request.");
             result.setValue(HttpOperationResult.Failed);

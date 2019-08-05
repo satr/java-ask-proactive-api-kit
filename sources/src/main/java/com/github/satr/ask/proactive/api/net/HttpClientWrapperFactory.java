@@ -14,7 +14,7 @@ public final class HttpClientWrapperFactory {
      * Retrieves {$link HttpClientWrapper}.
      *
      * Default {@link ApacheHttpClientWrapper} is retrieved,
-     * if alternative wrapper-client is not set
+     * if alternative wrapper-client is not setProvider
      * in the {@link HttpClientWrapperFactory#setClient} method
      */
     public static HttpClientWrapper getClient() {

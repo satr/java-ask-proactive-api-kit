@@ -18,7 +18,7 @@ public abstract class AwsSecretAsJsonProvider<T> extends AwsSecretProvider {
         try {
             secret = new ObjectMapper().readValue(secretString, getSecretEntityType());
         } catch (IOException e) {
-            throw new SecurityException("Unable to get a Secret.", e);
+            throw new SecurityException("Unable to getProvider a Secret.", e);
         }
         processSecret(secret);
     }

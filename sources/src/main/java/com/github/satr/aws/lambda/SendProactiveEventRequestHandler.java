@@ -13,27 +13,29 @@ import com.github.satr.ask.proactive.api.net.AskProactiveEventHttpClient;
 import com.github.satr.aws.auth.*;
 import com.github.satr.aws.regions.InvalidRegionNameException;
 import com.github.satr.common.OperationResult;
-import com.github.satr.common.net.ApacheHttpClientWrapper;
 import com.github.satr.common.net.HttpClientWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/// set environment variables in a Lambda function configuration dashboard (names and values are described in <ref=EnvironmentVariable>). Default: Dev, NorthEast
+/// setProvider environment variables in a Lambda function configuration dashboard (names and values are described in <ref=EnvironmentVariable>). Default: Dev, NorthEast
 public class SendProactiveEventRequestHandler implements RequestHandler<Map<String, String>, String> {
     private final ProactiveEventProvider proactiveEventProvider;
-    private AskProactiveEventHttpClient httpClientWrapper;
+    private AskProactiveEventHttpClient askProactiveEventHttpClient;
 
     /**
     * @param alexaClientIdSecretAwsSecretName     the name of the key-value entry in the AWS SecretManager, holding values in corresponding keys "client_id", "client_secret"
     * @param region                               the region name of the key-value entry in the AWS SecretManager
-    *                                                   <li>{@link RegionNameSource#StringValue} the name of a region like: "US_EAST_1"</li>
-    *                                                   <li>{@link RegionNameSource#EnvironmentVariables} the name of an environment variable, holding a name of a region like: "US_EAST_1"</li>
+    *                                                   <li>{@link RegionNameSource#StringValue} the name of a region ({@link com.amazonaws.regions.Regions}). Example: "us-east-1".</li>
+    *                                                   <li>{@link RegionNameSource#EnvironmentVariables} the name of an environment variable,
+    *                                                   holding a name of a region ({@link com.amazonaws.regions.Regions}). Example: "us-east-1"</li>
     * @param proactiveEventProvider               the component, implementing the interface {@link ProactiveEventProvider}, provides a list of events to be sent
     */
     public SendProactiveEventRequestHandler(String alexaClientIdSecretAwsSecretName, String region, RegionNameSource regionNameSource, ProactiveEventProvider proactiveEventProvider) throws InvalidRegionNameException {
-        this(new ApacheHttpClientWrapper(), new AwsSecretsClientIdSecretProvider(alexaClientIdSecretAwsSecretName, getRegion(region, regionNameSource)), proactiveEventProvider);
+        this(HttpClientWrapperFactory.getClient(),
+                AwsSecretsClientIdSecretProviderFactory.getProvider(alexaClientIdSecretAwsSecretName, getRegion(region, regionNameSource)),
+                proactiveEventProvider);
     }
 
     /**
@@ -66,7 +68,7 @@ public class SendProactiveEventRequestHandler implements RequestHandler<Map<Stri
      * @param proactiveEventProvider               the component, implementing the interface {@link ProactiveEventProvider}, provides a list of events to be sent
      */
     public SendProactiveEventRequestHandler(HttpClientWrapper httpClientWrapper, ClientIdSecretProvider secretProvider, ProactiveEventProvider proactiveEventProvider) {
-        this.httpClientWrapper = new AskProactiveEventHttpClient(secretProvider, httpClientWrapper);
+        this.askProactiveEventHttpClient = new AskProactiveEventHttpClient(secretProvider, httpClientWrapper);
         this.proactiveEventProvider = proactiveEventProvider;
     }
 
@@ -96,7 +98,7 @@ public class SendProactiveEventRequestHandler implements RequestHandler<Map<Stri
         for (ProactiveEvent event: events) {
             if(eventCount >= MaxEvents)
                 break;
-            OperationResult result = httpClientWrapper.send(event);
+            OperationResult result = askProactiveEventHttpClient.send(event);
             logResult(logger, result);
             String outputMessage = result.isSuccess()
                     ? String.format("Event #%d has been sent with referenceId: %s (timestamp: %s, expired: %s)", eventCount + 1, event.getReferenceId(), event.getTimestamp(), event.getExpiryTime())
